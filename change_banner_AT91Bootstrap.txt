@@ -1,0 +1,57 @@
+
+CHANGE PRIMARAY BOOT LOADER BANNER NAME:
+----------------------------------------
+
+
+	1. Go to website github.ruggedboard  go to at91bootstrap repository . open at91bootstrap_v3.8 branch
+
+	2. Cick on code
+	
+	3.Download zip file and extract that
+
+	4. Open this path /Downloads/at91bootstrap-rba5d2x-at91bootstrap-rba5d2x_v3.8.12/board/rugged_board_a5d2x in terminal
+
+	5. ctags -R *
+
+	6. cd ../../
+
+	7. /opt/poky-tiny/2.5.2/environment-setup-cortexa5hf-neon-poky-linux-musleabi
+
+	7. make rugged_board_a5d2xqspi_uboot_defconfig
+
+	8. vi .config
+
+	9. change in config banner 
+	
+	10.make
+
+	11. cd binaries
+
+	12. mv rugged_board_a5d2x-dataflashboot--3.8.12.bin BOOT.BIN
+
+	13. cp BOOT.BIN /var/lib/tftpboot/
+
+
+
+	12.In rugged board terminal type 
+
+	setenv ipaddr 192.168.1.20
+	setenv serverip 192.168.1.247
+	ping 192.168.1.247
+	saveenv
+	
+	13.Connect eathernet cable
+	
+	sf probe
+	tftp 0x22000000 BOOT.BIN
+	sf erase 0x0 0x10000
+	sf write 0x22000000 0x0 0x10000
+
+
+
+	14.boot
+
+
+
+
+

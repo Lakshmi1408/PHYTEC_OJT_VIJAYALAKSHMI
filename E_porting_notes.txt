@@ -1,0 +1,219 @@
+Introduction to embedded systems:
+-----------------------------------
+Embedded systems is a interconnection of different hardware to which the software needs to designed for the functionslity and application oriented devices.
+
+Porting :
+---------
+
+Customizing a given software on a hardware is called porting.
+
+
+Major classification of ES:
+----------------------------
+Three major classification:
+1) MCU based : -> Low power, Small code , Small RTOS .
+2) MPU based : -> High speed , Application code.
+3) MPU+ based: -> Special Co-processor , Very high computation .
+
+elinux System ARCH :-
+----------------------
+
+* All the hardware components are at the lower level.
+* Drivers will be the part of linux kernel.
+* Stacks and application comes under Rootfs.
+
+Architecture : It provides the blueprint of the processors and also defines the intruction sets and hardware block of the architecture processor.
+
+core : Processor deisigned with VHDL having ALU,registers,Buses etc...
+
+SoC : Silicon with processor and peripherals like GPIO , and communication interfaces .
+
+SoM : When we deal with low power SoC we need power block also , PMIC+SoC+RAM+falsh this gives a PCB to boot a OS, called as SoM.
+
+ARM Cores :
+------------
+
+* Embedded Cores : The M-Series of the CORTEX core and ARM-7 are embedded cores.
+* Application Cores : The A-Series of the CORTEX core ARM-9 and ARM-11 are Application cores.
+* Real-Time Cores : The R-Series of the CORTEX core are Real-Time Cores .
+
+RuggedBOARD :
+--------------
+Cortex-A5
+64MB RAM
+32MB Flash
+
+* Open source Hardware and initiative.
+* Industrial Grade Hardware for IIoT.
+* Mikrobus connection and expansion header.
+
+Boot Process :
+--------------
+
+On PC:
+
+Power On-> BIOS (POST, Bootstraploader) -> MBR -> Bootloader -> Kernel -> RFS
+
+Bootstarploader: A program which is responsible to locate first binary file from the secondary storage.
+
+MBR [Master Boot Record] : It identifies how and where the systems OS Is located in order to be booted into the RAM.
+
+ON RuggedBOARD:
+1. Power On SBC
+2. SOC BootROM Code will exec
+3. BootCFG Pins will define the bootdevice ( NAND, NOR, SDCARD ..... )
+4. From Bootdevice first piece of code (PBL) loaded in SRAM and executed
+5. PBL responsible for External RAM Init and loads the BL to External RAM and execute.
+6. BL will load the kernel and executes
+7. Kernel boots and mounts the RootFS and finally executes the init binary
+8. Init will follow init rc scripts to start services and applications.
+
+
+Boot Mode of SOC:
+- Boot Config Pins: Boot Config Pins are physical pins on the SoC that are used to configure the boot mode. 
+- Boot Config Registers: These registers are typically programmed using software during system setup or through a bootloader. 
+
+Common Bootmodes:
+1. Serial Bootmodes :The device starts up by communicating with another device (often a computer) through a serial connection.SAM-BA tools is used to transfer the files over SCP.
+ 
+2. SDCard Bootmodes : This mode involves booting from an SD (Secure Digital) card.
+
+3. USB Bootmode (DFU) : When a device is in DFU mode, it's ready to receive new firmware or software updates via a USB connection.
+
+4. Ethernet Bootmode :The device boots up by connecting to a network via an Ethernet cable.
+
+TFTP for Flashing Images:
+--------------------------
+
+Trivial File Transfer Protocol (TFTP) is a standard network protocol used to transfer files from one host to another over a TCP-based network.
+
+TFTP Server Setup Steps:
+-------------------------
+1. Install the TFTPD & TFT Client packages
+2. Create a tftd-config file /etc/
+	Port
+	Location
+	Permission
+3. Configure tftd service to be started by Network Service Manager.
+4. Test tftp on local host.
+
+Running Applications on RB:
+---------------------------
+
+#Boot RB-A5D2x to Linux Shell prompt
+#Change dir to /data on board
+$cd /data
+#Get hello_world binay using tftp –r <file_name> -g <serer_ip>
+$ tftp –r hello_world –g 192.168.1.12
+#Change the file permission to make it executable
+$chmod +x hello_world
+$./hello
+
+Components of Toolchain:
+-------------------------
+Bins
+	Compiler
+	Assembler
+	Linker
+	Format Convertor
+Libs
+	C Library
+	pTherad Lib
+	Other …
+Tools
+	Debugging tools
+	
+Primary Bootloader :
+---------------------
+PBL will be responsible to initialize the DDR and load the BootLoader and execute it.
+
+Why BootLoader ?
+* Any ES , primary requirement is to have a bootloader is for the firmware update. Bootloaders are the bridge between the hardware and software of a computing system.
+
+Functions of Bootloader :
+--------------------------
+1) Hardware Initialization: They configure hardware peripherals, set the processor and memory , and ensure that the system is ready to run software.
+
+2) Firmware Update: Bootloaders enable users to install custom firmware and update the server , which is important for many types of devices.
+
+3) Loading OS: Bootloaders load the operating system or otherm software applications into memory.
+ 
+4) Command Line interfaces: Bootloader provide command-line interfaces (CLIs) as part of their functionality. 
+
+Why primary Bootloader?
+
+It will just load the bootloader into DDR.
+* Two stage Bootloader.
+* DCD [Device Configuration Data]
+
+Linker Script :
+Data Structure to define the Memory Layout.
+
+
+U-BOOT Dir Structure :
+-----------------------
+uboot/arch/arm/cpu : Arch & Core specific code, u-boot.lds armv7/start.S, cpu.c
+
+uboot/arch/arm/mach-at91 : SOC specific code, armv7/sama5d2_devices.c
+
+uboot/arch/arm/dts : device tree directory consists of device tree files for SOC, SOM, SBC sama5d2.dsi , rb_a5d2x.dtsi, rugged_board_a5d2x.dts
+
+uboot/board/atmel/rugged_board_a5d2x : Board directory contains board files with syntax <vendor>/<boardname> boardname.c called board file.
+
+uboot/configs : Contains board default configuration file used to configure uboot for a specific board. <boardname_defconfig> for ruggedboard we have two files for NOR: rugged_board_a5d2x_qspiflash_defconfig & for SDCARD: rugged_board_a5d2x_mmc1_defconfig
+
+uboot/drivers : Contains bus drivers & device drivers (gpio, serial, i2c, spi, mmc, usb, net) at91_gpio.c, atmel_usart.c, at91_i2c.c, atmel_sdhci.c, atmel_spi/qspi.c, at91_emac.c Device Driver: rtc/ds1307.c, misc/i2c_eeprom.c
+
+uboot/common : U-Boot Bootloader SW Logic and main code.
+
+uboot/cmd : U-Boot Command Line Interface Implementation
+
+uboot/fs : File systems implemented/supported by u-boot
+
+uboot/net : Network sub-system/stack of u-boot
+
+uboot/Documentation : U-Boot documentation
+
+uboot/post : U-Boot Power On Self test function
+
+uboot/env : Environment variable SW module
+
+
+U-BOOT Code Flow :
+------------------
+
+board_init_f()
+	- initf_bootstage 	/* uses its own timer,so doesn’t need DM */
+	- arch_cpu_init	/* basic arch cpu dependent setup */
+	- mach_cpu_init	/* SoC/machine dependent CPU setup */
+	- get_clocks		/* get CPU and bus clocks (etc.) */
+	- timer_init		/* initialize timer */
+	- env_init		/* initialize environment */
+	- init_baud_rate	/* initialze baudrate settings */
+	- serial_init		/* serial communications setup */
+	- console_init_f	/* stage 1 init of console */
+	- dram_init		/* configure available RAM banks */
+
+board_init_r()
+	- board_init		/* Setup chipselects */
+	- set_cpu_clk_info	/* Setup clock information */
+	- initr_nand		/* initialize flash */
+	- initr_mmc		/* initialize fmmc */
+	- console_init_r	/* fully init console as a device */
+	- arch_misc_init	/* miscellaneous arch-dependent init */
+	- misc_init_r		/* misc platform-dependent init */
+	- interrupt_init	/*set up exceptions */
+	- initr_enable_interrupts	/* enable exceptions */
+	- initr_ethaddr	/* setup ethernet */
+	- board_late_init	/* board late initialization */
+	- run_main_loop	/* jump to main loop & waiting for commands from console */
+
+
+
+U-Boot Ends with:
+main.c
+will run the default boot command autoboot_command(s);
+
+(or)
+
+start the command line cli_loop();	      
