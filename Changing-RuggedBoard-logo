@@ -1,0 +1,28 @@
+CHANGING LOGO NAME RUGGED BOARD A5D2X:
+======================================
+
+	1. Install figlet using (sudo apt-get install figlet)
+	
+	2. figlet_ banner name 
+	   Give figlet NAME in terminal and give any name what you want to add
+	
+	3. Copy that displayed name from the terminal
+	
+	4. Goto rugged terminal
+	
+	5. Goto etc folder (cd /etc/)
+	
+	6. In etc goto issue (vi issue)
+
+	7. Remove previus name and Paste that copied name
+	
+	8. Then goto ssh (cd /etc/ssh/)
+	
+	9. In ssh goto sshd_config (vi sshd_config)
+	
+	10. Hear there is a command  # none banner
+	    remove # and none
+	    
+	11. save and type cd
+	
+	12. Boot board

@@ -1,0 +1,33 @@
+KERNAL COMPILATION  AND BANNER CHANGING IN KERNAL:
+==================================================
+
+DOWNLOAD THE LINUX A5d2x source from git or clone the git
+ Enable the toolchain
+      . /opt/pOKY-tiny/2.5.2/environment
+ cd init
+ vi version.c
+    cont chat arry we have to chnage the banner
+ cd ..
+  make distclean
+  make ruggudboard _a5d2x defconfig
+  make
+  cd arch/arm/boot
+  cp zimage /var/lib/tftpboot
+  cd dts
+  cp rba5d2x-rugged.dtb /var/lib/tftpboot
+  
+  
+  sudo minicom -s
+  
+  setenv serverip 192.168.1.1
+  setenv ipaddr 192.168.1.33
+  ping 192.168.1.33
+  
+  copy the zimage and oftree images commands  //It will find in Ruggedboard.community.com
+    sf probe
+    tftp
+    sf write
+    sf erase
+  saveenv
+  reset
+  
